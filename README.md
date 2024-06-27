@@ -6,4 +6,4 @@
 
 ## build + démarrer le projet:
 
-docker compose u- --build
+docker compose up --build
