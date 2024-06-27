@@ -1,0 +1,39 @@
+# Ignore development and system files
+.git
+.gitignore
+.idea
+.vscode
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore Python virtual environment
+venv
+env
+
+# Ignore local dependencies
+lib
+libs
+*.egg-info
+dist
+build
+
+# Ignore log files
+*.log
+
+# Ignore SQLite database files
+*.sqlite
+
+# Ignore Docker-specific files if using Docker
+.dockerignore
+.docker
+
+# Ignore Pipenv files if using Pipenv
+Pipfile
+Pipfile.lock
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore Windows specific files
+Thumbs.db

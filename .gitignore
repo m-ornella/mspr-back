@@ -1,0 +1,45 @@
+# Byte-compiled / optimized Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Dependency directories
+lib/
+libs/
+*.egg-info/
+dist/
+build/
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Environment variables
+.env
+
+# Compiled Python files
+*.pyc
+
+# Ignore Docker related files if not using Docker
+docker-compose.yml
+Dockerfile
+
+# Ignore pytest cache
+__pycache__
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore pipenv environment file
+Pipfile.lock
