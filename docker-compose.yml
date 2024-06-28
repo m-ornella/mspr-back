@@ -1,0 +1,49 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: mspr-db
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mspr-db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -u root -p${MYSQL_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  back:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mspr-back
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@db:3306/mspr-db
+    ports:
+      - "8000:80"
+    depends_on:
+      - db
+    #     condition: service_healthy
+    # command:
+    #   [
+    #     "/wait-for-mysql.sh",
+    #     "db",
+    #     "uvicorn",
+    #     "app.main:app",
+    #     "--host",
+    #     "0.0.0.0",
+    #     "--port",
+    #     "80",
+    #   ]
+
+volumes:
+  mysql_data:
+    driver: local
