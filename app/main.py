@@ -1,5 +1,5 @@
 from app import schemas
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
 from sqlalchemy.orm import Session
 import app.crud as crud
 import app.models.user, app.models.answer, app.models.message, app.models.plant_guarding, app.models.plant_question
@@ -8,6 +8,7 @@ from app.models.user import User
 from app.models.message import Message
 from app.models.plant_guarding import PlantGuarding
 from app.models.plant_question import PlantQuestion
+from app.models.photo import Photo
 # from app.models.plant_type import PlantType
 from app.models.answer import Answer
 from app.database import SessionLocal, engine, Base
@@ -15,7 +16,8 @@ from .database import SessionLocal, engine, Base
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import timedelta
 from jose import JWTError, jwt
-
+import shutil
+import os
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -160,24 +162,70 @@ def update_plant_guarding(
 
 # DELETE /api/plantsGuarding/:id
 @app.delete("/api/plantsGuarding/{guarding_id}")
-def delete_plant_guarding(guarding_id: int, db: Session = Depends(get_db)):
-    return crud.delete_plant_guarding(db, guarding_id)
+def create_plant_guarding(
+    name: str,
+    description: str,
+    date_start: str,
+    date_end: str,
+    location: str,
+    id_owner: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    # Ensure the uploads directory exists
+    upload_dir = "uploads"
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
 
+    # Save the uploaded file
+    file_path = os.path.join(upload_dir, file.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    plant_guarding_data = schemas.PlantGuardingCreate(
+        Name=name,
+        Description=description,
+        DateStart=date_start,
+        DateEnd=date_end,
+        Location=location,
+        IdOwner=id_owner,
+        photos=[schemas.PhotoCreate(Url=file_path)]
+    )
+    return crud.create_plant_guarding(db=db, plant_guarding=plant_guarding_data)
 
 # POST /api/plantsQuestions
 @app.post("/api/plantsQuestions")
 def create_plant_question(
-    question: schemas.PlantQuestionCreate, owner_id: int, db: Session = Depends(get_db)
+    title: str,
+    content: str,
+    date_sent: str,
+    id_owner: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
 ):
-    return crud.create_plant_question(db, question, owner_id)
+    # Ensure the uploads directory exists
+    upload_dir = "uploads"
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+
+    # Save the uploaded file
+    file_path = os.path.join(upload_dir, file.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    plant_question_data = schemas.PlantQuestionCreate(
+        Title=title,
+        Content=content,
+        DateSent=date_sent,
+        IdOwner=id_owner,
+        photos=[schemas.PhotoCreate(Url=file_path)]
+    )
+    return crud.create_plant_question(db=db, plant_question=plant_question_data)
 
 
 # POST /api/plantsGuarding
-@app.post("/api/plantsGuarding")
-def create_plant_guarding(
-    guarding: schemas.PlantGuardingCreate, owner_id: int, db: Session = Depends(get_db)
-):
-    return crud.create_plant_guarding(db, guarding, owner_id)
+def create_plant_guarding(plant_guarding: schemas.PlantGuardingCreate, db: Session = Depends(get_db)):
+    return crud.create_plant_guarding(db=db, plant_guarding=plant_guarding)
 
 
 # POST /api/message/:IdSender:IdReceiver

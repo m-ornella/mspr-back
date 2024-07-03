@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 # Install Alembic
 RUN pip install alembic
 
+RUN pip install python-multipart
+
 # 
 COPY ./app /code/app
 

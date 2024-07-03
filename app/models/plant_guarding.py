@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -11,12 +10,10 @@ class PlantGuarding(Base):
     IdGuard = Column(Integer, ForeignKey("User.Id"))
     Name = Column(String(100), nullable=False)
     Description = Column(String(255))
-    Picture = Column(String(255))
     DateStart = Column(Date, nullable=False)
     DateEnd = Column(Date)
     Location = Column(String(100))
 
-    owner = relationship(
-        "User", foreign_keys=[IdOwner], back_populates="plant_guardings"
-    )
+    owner = relationship("User", foreign_keys=[IdOwner], back_populates="plant_guardings")
     guard = relationship("User", foreign_keys=[IdGuard])
+    photos = relationship("Photo", back_populates="plant_guarding")
