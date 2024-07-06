@@ -1,5 +1,5 @@
 from app import schemas
-from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 import app.crud as crud
 import app.models.user, app.models.answer, app.models.message, app.models.plant_guarding, app.models.plant_question
@@ -13,6 +13,7 @@ from app.models.photo import Photo
 from app.models.answer import Answer
 from app.database import SessionLocal, engine, Base
 from .database import SessionLocal, engine, Base
+from app.schemas import User, UserCreate, Message, MessageCreate
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import timedelta
 from jose import JWTError, jwt
@@ -283,3 +284,59 @@ def delete_plant_guarding(guarding_id: int, db: Session = Depends(get_db)):
 @app.delete("/api/message/{message_id}")
 def delete_message(message_id: int, db: Session = Depends(get_db)):
     return crud.delete_message(db, message_id)
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+@app.websocket("/ws/{username}")
+async def websocket_endpoint(websocket: WebSocket, username: str):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.broadcast(f"{username}: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"{username} a quitté le chat")
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/users/", response_model=User)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    return crud.create_user(db=db, user=user)
+
+@app.get("/users/", response_model=List[User])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = crud.get_users(db, skip=skip, limit=limit)
+    return users
+
+@app.post("/messages/", response_model=Message)
+def create_message(message: MessageCreate, db: Session = Depends(get_db)):
+    return crud.create_message(db=db, message=message)
+
+@app.get("/messages/", response_model=List[Message])
+def read_messages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    messages = crud.get_messages(db, skip=skip, limit=limit)
+    return messages
