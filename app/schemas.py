@@ -1,6 +1,6 @@
 from datetime import date
 from pydantic import BaseModel, EmailStr, HttpUrl
-from typing import Optional
+from typing import Optional, List
 
 class Token(BaseModel):
     access_token: str
@@ -34,7 +34,6 @@ class User(UserBase):
 class AnswerBase(BaseModel):
     Content: str
     DateSent: Optional[str]
-    Picture: Optional[str]
 
 
 class AnswerCreate(AnswerBase):
@@ -67,28 +66,23 @@ class Message(MessageBase):
     class Config:
         orm_mode = True
 
+class PhotoBase(BaseModel):
+    Url: str
 
-# class PhotosBase(BaseModel):
-#     file_path: Optional[str]
-#     content_type: Optional[str]
-#     content_id: Optional[str]
+class PhotoCreate(PhotoBase):
+    pass
 
+class Photo(PhotoBase):
+    Id: int
+    PlantGuardingId: Optional[int]
+    PlantQuestionId: Optional[int]
 
-# class PhotosCreate(PhotosBase):
-#     pass
-
-
-# class Photos(PhotosBase):
-#     id: Optional[str]
-
-#     class Config:
-#         orm_mode = True
-
+    class Config:
+        orm_mode = True
 
 class PlantGuardingBase(BaseModel):
     Name: str
     Description: Optional[str]
-    Picture: Optional[str]
     DateStart: Optional[str]
     DateEnd: Optional[str]
     Location: Optional[str]
@@ -96,31 +90,31 @@ class PlantGuardingBase(BaseModel):
 
 
 class PlantGuardingCreate(PlantGuardingBase):
-    pass
+    photos: Optional[List[PhotoCreate]] = []
 
 
 class PlantGuarding(PlantGuardingBase):
     Id: Optional[str]
     IdGuard: Optional[str]
+    photos: List[Photo] = []
 
     class Config:
         orm_mode = True
 
 
 class PlantQuestionBase(BaseModel):
-    Picture: Optional[HttpUrl]
     Title: str
     Content: str
     DateSent: Optional[str]
     IdOwner: int
 
-
 class PlantQuestionCreate(PlantQuestionBase):
-    pass
+    photos: Optional[List[PhotoCreate]] = []
 
 
 class PlantQuestion(PlantQuestionBase):
     Id: Optional[int]
+    photos: List[Photo] = []
 
     class Config:
         orm_mode = True

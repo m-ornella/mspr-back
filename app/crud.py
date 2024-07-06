@@ -5,6 +5,7 @@ from app.models.answer import Answer
 from app.models.message import Message
 from app.models.plant_guarding import PlantGuarding
 from app.models.plant_question import PlantQuestion
+from app.models.photo import Photo
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
@@ -86,26 +87,44 @@ def get_user(db: Session, user_id: int):
 # ############ POST ##################################################################
 
 # Questions
-def create_plant_question(db: Session, question: schemas.PlantQuestionCreate, owner_id: int):
-    db_question = PlantQuestion(
-        IdOwner=owner_id,
-        Picture=question.Picture,
-        Title=question.Title,
-        Content=question.Content,
-        DateSent=question.DateSent
+def create_plant_question(db: Session, plant_question: schemas.PlantQuestionCreate):
+    db_plant_question = PlantQuestion(
+        Title=plant_question.Title,
+        Content=plant_question.Content,
+        DateSent=plant_question.DateSent,
+        IdOwner=plant_question.IdOwner
     )
-    db.add(db_question)
+    db.add(db_plant_question)
     db.commit()
-    db.refresh(db_question)
-    return db_question
+    db.refresh(db_plant_question)
+
+    for photo in plant_question.photos:
+        db_photo = Photo(Url=photo.Url, PlantQuestionId=db_plant_question.Id)
+        db.add(db_photo)
+        db.commit()
+
+    return db_plant_question
 
 # Sessions de garde
-def create_plant_guarding(db: Session, guarding: schemas.PlantGuardingCreate, owner_id: int):
-    db_guarding = PlantGuarding()
-    db.add(db_guarding)
+def create_plant_guarding(db: Session, plant_guarding: schemas.PlantGuardingCreate):
+    db_plant_guarding = PlantGuarding(
+        Name=plant_guarding.Name,
+        Description=plant_guarding.Description,
+        DateStart=plant_guarding.DateStart,
+        DateEnd=plant_guarding.DateEnd,
+        Location=plant_guarding.Location,
+        IdOwner=plant_guarding.IdOwner
+    )
+    db.add(db_plant_guarding)
     db.commit()
-    db.refresh(db_guarding)
-    return db_guarding
+    db.refresh(db_plant_guarding)
+
+    for photo in plant_guarding.photos:
+        db_photo = Photo(Url=photo.Url, PlantGuardingId=db_plant_guarding.Id)
+        db.add(db_photo)
+        db.commit()
+
+    return db_plant_guarding
 
 # Messages
 def create_message(db: Session, message: schemas.MessageCreate, sender_id: int, receiver_id: int):
