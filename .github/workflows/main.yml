@@ -1,0 +1,25 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build and run custom action
+      uses: ./ 
+      with:
+        who-to-greet: 'GitHub User'
+
+    - name: Print time
+      run: echo "Greeted at ${{ steps.build.outputs.time }}"
