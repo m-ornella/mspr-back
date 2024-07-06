@@ -27,7 +27,7 @@ class User(UserBase):
     Id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 
@@ -46,7 +46,7 @@ class Answer(AnswerBase):
     IdQuestion: Optional[int]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class MessageBase(BaseModel):
@@ -64,7 +64,7 @@ class Message(MessageBase):
     IdReceiver: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PhotoBase(BaseModel):
     Url: str
@@ -78,7 +78,7 @@ class Photo(PhotoBase):
     PlantQuestionId: Optional[int]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PlantGuardingBase(BaseModel):
     Name: str
@@ -99,7 +99,7 @@ class PlantGuarding(PlantGuardingBase):
     photos: List[Photo] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class PlantQuestionBase(BaseModel):
@@ -117,7 +117,7 @@ class PlantQuestion(PlantQuestionBase):
     photos: List[Photo] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # class PlantTypesBase(BaseModel):
