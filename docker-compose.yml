@@ -10,6 +10,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: root
+      MYSQL_PASSWORD: root
       MYSQL_DATABASE: mspr-db
     healthcheck:
       test: 'mysql --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute "SHOW DATABASES;" || exit 1'
