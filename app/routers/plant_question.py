@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.crud.plant_question import create_plant_question, get_plant_question, get_plant_questions, update_plant_question, delete_plant_question, get_plant_question_user
 from app.models.plant_question import PlantQuestion as PlantQuestionModel
 from app.schemas.plant_question import PlantQuestion, PlantQuestionCreate, PlantQuestionUpdate, PlantQuestionResponse, PlantQuestionInDBBase
@@ -12,16 +12,15 @@ router = APIRouter(
     tags=["plant_questions"],
 )
 
-@router.post("/", response_model=PlantQuestion)
+@router.post("/", response_model=PlantQuestionResponse)
 def create_plant_question_endpoint(
     Title: str,
     Content: str,
     DateSent: str,
     IdOwner: int,
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File([]),
     db: Session = Depends(get_db)
 ):
-    file_data = file.file.read()
     plant_question_data = PlantQuestionCreate(
         Title=Title,
         Content=Content,
@@ -31,12 +30,14 @@ def create_plant_question_endpoint(
 
     db_plant_question = create_plant_question(db, plant_question_data)
 
-    photo = create_photo(db=db, photo_data=file_data, plant_question_id=db_plant_question.Id)
-    db_plant_question.photos.append(photo)
-    db.commit()
-    db.refresh(db_plant_question)
+    if files:
+        for file in files:
+            file_data = file.file.read()
+            photo = create_photo(db=db, photo_data=file_data, plant_question_id=db_plant_question.Id)
+            db_plant_question.photos.append(photo)
+        db.commit()
+        db.refresh(db_plant_question)
 
-    # Convert DateSent to string
     response_data = db_plant_question.__dict__.copy()
     response_data['DateSent'] = db_plant_question.DateSent.isoformat()
     return response_data

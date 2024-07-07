@@ -11,14 +11,14 @@ class PlantQuestionBase(BaseModel):
     IdOwner: int
 
 class PlantQuestionCreate(PlantQuestionBase):
-    photos: Optional[List[Photo]] = []
+    photos: Optional[List[PhotoResponse]] = []
 
 class PlantQuestionUpdate(PlantQuestionBase):
-    photos: Optional[List[Photo]] = []
+    photos: Optional[List[PhotoResponse]] = []
 
 class PlantQuestionInDBBase(PlantQuestionBase):
     Id: int
-    photos: List[Photo] = []
+    photos: List[PhotoResponse] = []
 
     class Config:
         from_attributes = True
@@ -35,7 +35,7 @@ class PlantQuestionResponse(BaseModel):
     Content: str
     DateSent: str
     IdOwner: int
-    photos: List[PhotoResponse]
+    photos: List[PhotoResponse] = []
 
     class Config:
         from_attributes = True

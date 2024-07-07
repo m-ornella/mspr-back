@@ -4,7 +4,7 @@ from app.schemas.plant_question import PlantQuestionCreate, PlantQuestionUpdate,
 from app.schemas.photo import PhotoResponse
 
 def create_plant_question(db: Session, plant_question: PlantQuestionCreate) -> PlantQuestion:
-    db_plant_question = PlantQuestion(**plant_question.dict())
+    db_plant_question = PlantQuestion(**plant_question.dict(exclude_unset=True))
     db.add(db_plant_question)
     db.commit()
     db.refresh(db_plant_question)
