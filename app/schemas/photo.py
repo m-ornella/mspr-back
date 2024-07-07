@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class PhotoBase(BaseModel):
     PlantGuardingId: int = None
@@ -22,3 +23,21 @@ class Photo(PhotoInDBBase):
 
 class PhotoInDB(PhotoInDBBase):
     pass
+
+class Photo(BaseModel):
+    Id: int
+    url: str
+    PlantGuardingId: int | None = None
+    PlantQuestionId: int | None = None
+
+    class Config:
+        from_attributes = True
+
+class PhotoResponse(BaseModel):
+    Id: int
+    url: str
+    PlantGuardingId: Optional[int] = None
+    PlantQuestionId: Optional[int] = None
+
+    class Config:
+        from_attributes = True
