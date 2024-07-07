@@ -75,7 +75,10 @@ def get_plant_question_by_id(db: Session, question_id: int):
 
 # Sessions de garde
 def get_plant_guardings(db: Session):
-    return db.query(PlantGuarding).all()
+    return db.query(
+        PlantGuarding,
+        User.Email.label('OwnerEmail')
+    ).join(User, PlantGuarding.IdOwner == User.Id).all()
 
 def get_plant_guarding_by_id(db: Session, guarding_id: int):
     return db.query(PlantGuarding).filter(PlantGuarding.Id == guarding_id).first()
