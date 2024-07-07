@@ -5,6 +5,7 @@ from datetime import timedelta
 from app.crud.user import create_user, get_user_by_email, authenticate_user, create_access_token, get_user, get_users, update_user, delete_user
 from app.schemas.user import User, UserCreate, UserUpdate
 from app.database import get_db
+from pydantic import BaseModel
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -13,22 +14,34 @@ router = APIRouter(
     tags=["users"],
 )
 
-@router.post("/signin", response_model=User)
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@router.post("/signin")
 def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
     """
-    Create a new user with the given details.
+    Create a new user with the given details and return a JWT token.
     """
     db_user = get_user_by_email(db, user.Email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return create_user(db, user)
+    
+    new_user = create_user(db, user)
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": new_user.Email}, expires_delta=access_token_expires
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer", "user": new_user}
 
 @router.post("/login")
-def login_user(email: str, password: str, db: Session = Depends(get_db)):
+def login_user(request: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate a user and return a JWT token.
     """
-    user = authenticate_user(db, email, password)
+    user = authenticate_user(db, request.email, request.password)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
