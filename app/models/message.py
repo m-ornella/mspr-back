@@ -14,3 +14,5 @@ class Message(Base):
 
     sender = relationship("User", foreign_keys=[IdSender])
     receiver = relationship("User", foreign_keys=[IdReceiver])
+
+from .user import User

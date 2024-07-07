@@ -11,6 +11,7 @@ class PlantGuardingBase(BaseModel):
     date_end: str
     location: str
     owner_id: int
+    guard_id: int
 
 class PlantGuardingCreate(PlantGuardingBase):
     photos: List[Photo]

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.crud.plant_guarding import create_plant_guarding, get_plant_guarding, get_plant_guardings, update_plant_guarding, delete_plant_guarding
 from app.schemas.plant_guarding import PlantGuarding, PlantGuardingCreate, PlantGuardingUpdate
-from app.database import SessionLocal
+from app.database import get_db
 import shutil
 import os
 
@@ -21,7 +21,7 @@ def create_plant_guarding_endpoint(
     location: str,
     owner_id: int,
     file: UploadFile = File(...),
-    db: Session = Depends(SessionLocal)
+    db: Session = Depends(get_db)
 ):
     upload_dir = "uploads"
     if not os.path.exists(upload_dir):
@@ -43,25 +43,25 @@ def create_plant_guarding_endpoint(
     return create_plant_guarding(db, plant_guarding_data)
 
 @router.get("/{guarding_id}", response_model=PlantGuarding)
-def read_plant_guarding(guarding_id: int, db: Session = Depends(SessionLocal)):
+def read_plant_guarding(guarding_id: int, db: Session = Depends(get_db)):
     db_plant_guarding = get_plant_guarding(db, guarding_id)
     if db_plant_guarding is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant guarding not found")
     return db_plant_guarding
 
 @router.get("/", response_model=List[PlantGuarding])
-def read_plant_guardings(skip: int = 0, limit: int = 100, db: Session = Depends(SessionLocal)):
+def read_plant_guardings(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_plant_guardings(db, skip, limit)
 
 @router.put("/{guarding_id}", response_model=PlantGuarding)
-def update_plant_guarding_endpoint(guarding_id: int, guarding: PlantGuardingUpdate, db: Session = Depends(SessionLocal)):
+def update_plant_guarding_endpoint(guarding_id: int, guarding: PlantGuardingUpdate, db: Session = Depends(get_db)):
     db_plant_guarding = update_plant_guarding(db, guarding_id, guarding)
     if db_plant_guarding is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant guarding not found")
     return db_plant_guarding
 
 @router.delete("/{guarding_id}", response_model=PlantGuarding)
-def delete_plant_guarding_endpoint(guarding_id: int, db: Session = Depends(SessionLocal)):
+def delete_plant_guarding_endpoint(guarding_id: int, db: Session = Depends(get_db)):
     db_plant_guarding = delete_plant_guarding(db, guarding_id)
     if db_plant_guarding is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant guarding not found")

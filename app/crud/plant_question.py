@@ -10,13 +10,13 @@ def create_plant_question(db: Session, plant_question: PlantQuestionCreate) -> P
     return db_plant_question
 
 def get_plant_question(db: Session, question_id: int) -> PlantQuestion:
-    return db.query(PlantQuestion).filter(PlantQuestion.id == question_id).first()
+    return db.query(PlantQuestion).filter(PlantQuestion.Id == question_id).first()
 
 def get_plant_questions(db: Session, skip: int = 0, limit: int = 100):
     return db.query(PlantQuestion).offset(skip).limit(limit).all()
 
 def update_plant_question(db: Session, question_id: int, question: PlantQuestionUpdate) -> PlantQuestion:
-    db_plant_question = db.query(PlantQuestion).filter(PlantQuestion.id == question_id).first()
+    db_plant_question = db.query(PlantQuestion).filter(PlantQuestion.Id == question_id).first()
     if db_plant_question is None:
         return None
     for key, value in question.dict().items():
@@ -26,7 +26,7 @@ def update_plant_question(db: Session, question_id: int, question: PlantQuestion
     return db_plant_question
 
 def delete_plant_question(db: Session, question_id: int) -> PlantQuestion:
-    db_plant_question = db.query(PlantQuestion).filter(PlantQuestion.id == question_id).first()
+    db_plant_question = db.query(PlantQuestion).filter(PlantQuestion.Id == question_id).first()
     if db_plant_question is None:
         return None
     db.delete(db_plant_question)

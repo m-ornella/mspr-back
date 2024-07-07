@@ -1,23 +1,29 @@
+from pydantic import BaseModel
+from typing import List, Optional
 from datetime import date
-from pydantic import BaseModel, EmailStr, HttpUrl
-from typing import Optional, List
-from app.schemas.photo import Photo, PhotoCreate
+from .photo import Photo
 
 class PlantQuestionBase(BaseModel):
     Title: str
     Content: str
-    DateSent: Optional[str]
+    DateSent: date
     IdOwner: int
 
 class PlantQuestionCreate(PlantQuestionBase):
-    photos: Optional[List[PhotoCreate]] = []
+    photos: Optional[List[Photo]] = []
 
 class PlantQuestionUpdate(PlantQuestionBase):
-    pass
+    photos: Optional[List[Photo]] = []
 
-class PlantQuestion(PlantQuestionBase):
-    Id: Optional[int]
+class PlantQuestionInDBBase(PlantQuestionBase):
+    Id: int
     photos: List[Photo] = []
 
     class Config:
         from_attributes = True
+
+class PlantQuestion(PlantQuestionInDBBase):
+    pass
+
+class PlantQuestionInDB(PlantQuestionInDBBase):
+    pass

@@ -14,3 +14,6 @@ class Answer(Base):
 
     sender = relationship("User", back_populates="answers")
     question = relationship("PlantQuestion", back_populates="answers")
+
+from .user import User
+from .plant_question import PlantQuestion

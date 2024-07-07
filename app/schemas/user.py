@@ -1,20 +1,22 @@
-from pydantic import BaseModel
+from datetime import date
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class UserBase(BaseModel):
-    email: str
-    full_name: Optional[str] = None
-    is_active: Optional[bool] = True
-    is_superuser: Optional[bool] = False
+    Name: str
+    Surname: str
+    Email: EmailStr
+    IsBotanist: bool
+    Birthday: date
 
 class UserCreate(UserBase):
-    password: str
+    Password: str
 
 class UserUpdate(UserBase):
     pass
 
 class UserInDBBase(UserBase):
-    id: int
+    Id: int
 
     class Config:
         from_attributes = True
@@ -23,4 +25,4 @@ class User(UserInDBBase):
     pass
 
 class UserInDB(UserInDBBase):
-    hashed_password: str
+    Password: str

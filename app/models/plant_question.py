@@ -14,3 +14,7 @@ class PlantQuestion(Base):
     owner = relationship("User", back_populates="questions")
     answers = relationship("Answer", back_populates="question")
     photos = relationship("Photo", back_populates="plant_question")
+
+from .user import User
+from .photo import Photo
+from .answer import Answer

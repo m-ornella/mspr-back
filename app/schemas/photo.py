@@ -1,19 +1,24 @@
 from pydantic import BaseModel
-from typing import Optional
 
 class PhotoBase(BaseModel):
-    image: bytes
-    plant_guarding_id: Optional[int] = None
-    plant_question_id: Optional[int] = None
+    PlantGuardingId: int = None
+    PlantQuestionId: int = None
 
 class PhotoCreate(PhotoBase):
-    pass
+    Photo: bytes
 
 class PhotoUpdate(PhotoBase):
-    pass
+    Photo: bytes
 
-class Photo(PhotoBase):
-    id: int
+class PhotoInDBBase(PhotoBase):
+    Id: int
+    Photo: bytes
 
     class Config:
         from_attributes = True
+
+class Photo(PhotoInDBBase):
+    pass
+
+class PhotoInDB(PhotoInDBBase):
+    pass

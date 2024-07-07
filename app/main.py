@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import Base, engine
+from app.database import engine, Base
 from app.routers import user, message, plant_guarding, plant_question, photo
 
+# Créez toutes les tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
